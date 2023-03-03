@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+   <title> 493 Artist Search</title>
+   <!--Bootstrap-->
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+      integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+   <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+      integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+      crossorigin="anonymous"></script>
+   <!--Custom Style-->
+   <link rel="stylesheet" type="text/css" href="index.css">
+   <!--Vue-->
+   <script src="https://unpkg.com/vue@3"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+</head>
+
+<body>
+   <div id='app'>
+      <nav class="navbar navbar-default">
+         <div class="container">
+            <div class="navbar-header">
+               <h3>493 Artist Search</h3>
+            </div>
+         </div>
+      </nav>
+      <div class="container">
+         <div class="row searchbar">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+               <h4>Enter the name of the artist and press enter: </h4>
+               <input v-model="term" type="search" @keyup.enter="search">
+               <p>Search Result (Total {{ resSize }} Found)</p>
+                  <div v-if="searching">
+                     <img src="./loading.gif"> 
+                  </div>
+            </div>
+         </div>
+
+         <div class="col-lg-12 col-md-12 col-sm-12">
+            <span v-if="resSize != 0"> 
+               <button class="btn" v-bind:class="{'btn-default':!checkAll()}, {'btn-success':(checkAll() || all)}" @click="backToAll();">ALL</button>
+            </span>
+            <span v-for="(c, g) in genres" >
+               <button class="btn btn-default" v-bind:class="{'btn-default' : !genres[g]}, {'btn-primary' : genres[g]}" @click="genres[g]=!genres[g]; checkAll();">{{g}}</button>
+               <!-- change the toggle to a function to avoid recursion-->
+            </span>
+            <h4>
+               List of results
+            </h4>
+            <div class="dropdown">
+               <button class="btn dropdown-toggle " type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                 Sort List of Results By:
+                 <span class="caret"></span>
+               </button>
+               <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
+                 <li v-bind:class="{'active':resetSort}" @click="ogSort()"><a>Reset to original</a></li>
+                 <li v-bind:class="{'active':collecName}" @click="collecSort()"><a>Collection Name</a></li>
+                 <li v-bind:class="{'active':price}" @click="priceSort()"><a>Price</a></li>
+               </ul>
+             </div>
+         </div>
+
+         <div v-for="(res, ind) in mutable">
+            <div class='col-lg-6 col-md-6 col-sm-6 artist' v-show="genres[res.primaryGenreName] || all">
+               <div class='artist-albumcover col-sm-4'>
+                  <img v-bind:src="res.artworkUrl100" >
+               </div>
+
+               <div class='artist-info col-sm-6'>
+                  <ul class="nav nav-tabs">
+                     <li class="active"><a data-toggle="tab" v-bind:href="createDHref(ind)">Description</a></li>
+                     <li><a data-toggle="tab" v-bind:href="createTHref(ind)">Track Info</a></li>
+                  </ul>
+                  <div class="tab-content">
+                  <div v-bind:id="createTId(ind)" class="tab-pane fade">
+                      <div :set="key = 'trackId'"><b>Track ID</b>: {{hasKey(res)}}</div>
+                      <div :set="key = 'country'"><b>Country</b>: {{hasKey(res)}}</div>
+                  </div>
+                  <div v-bind:id="createDId(ind)" class="tab-pane fade in active">
+                     <div :set="key = 'artistName'"><b>Artist Name</b>: {{hasKey(res)}}</div>
+                     <div :set="key = 'collectionName'"><b>Collection Name</b>: {{hasKey(res)}}</div>
+                     <div><b>Price</b>: {{hasPrice(res)}}</div>
+                     <div :set="key = 'kind'"><b>Kind</b>: {{hasKey(res)}}</div>
+                     <div :set="key = 'previewUrl'"><b>Preview</b>: 
+                        <template v-if="hasKey(res) != 'No information provided'"><a v-bind:href="hasKey(res)">Link</a></template>
+                        <template v-else>No information provided</template>
+                     </div>
+                  </div>
+               </div>
+               </div>
+            </div>   
+         </div>
+      </div>
+   </div>
+   <script src="script.js"></script>
+</body>
+</html>
